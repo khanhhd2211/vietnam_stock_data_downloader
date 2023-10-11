@@ -1,0 +1,16 @@
+
+tr {
+	th {
+		padding: 8px !important;
+	}
+
+	th, td {
+		white-space: nowrap;
+		text-align: right !important;
+	}
+}
+
+tr th:first-child,
+tr td:first-child {
+	text-align: left !important;
+}
