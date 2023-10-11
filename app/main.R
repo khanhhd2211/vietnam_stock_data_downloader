@@ -126,15 +126,15 @@ server <- function(id) {
               start_date = input$dates[1],
               end_date = input$dates[2]
             ))
-            balance_sheet_df(financial_report(input$symbol, "BalanceSheet", "Quarterly"))
-            income_statement_df(financial_report(input$symbol, "IncomeStatement", "Quarterly"))
-            cash_flow_statement_df(financial_report(input$symbol, "CashFlow", "Quarterly"))
+            balance_sheet_df(financial_report(input$symbol, "bsheet", input$dates[2], input$dates[2])) # nolint
+            income_statement_df(financial_report(input$symbol, "incsta", input$dates[2], input$dates[2])) # nolint
+            cash_flow_statement_df(financial_report(input$symbol, "cashflow", input$dates[2], input$dates[2])) # nolint
             stock_price$server("stock_price", company_overview_df(), stock_ohlc_df())
             financial_report_page$server("balance_sheet", balance_sheet_df())
             financial_report_page$server("income_statement", income_statement_df())
             financial_report_page$server("cash_flow_statement", cash_flow_statement_df())
           },
-          error = function (e) {
+          error = function(e) {
             report_failure(
               "Oups...",
               "Something went wrong"
@@ -156,55 +156,70 @@ server <- function(id) {
         }
       },
       content = function(fname) {
-        if (input$file_type == "excel") {
-          # EXCEL
-          write_xlsx(
-            list(
-              "History" = stock_ohlc_df(),
-              "Company Overview" = rownames_to_column(as.data.frame(company_overview_df()), " "),
-              "Balance Sheet" = balance_sheet_df(),
-              "Income Statement" = income_statement_df(),
-              "Cash Flow Statement" = cash_flow_statement_df()
-            ),
-            fname,
-          )
-        } else if (input$file_type == "csv") {
-          # CSV
-          fs <- c("company_overview.csv", "stock_ohlc.csv", "balance_sheet.csv",
-                  "income_statement.csv", "cash_flow.csv")
-          tmpdir <- tempdir()
-          setwd(tempdir())
-          write.csv(company_overview_df(), fs[1])
-          write.csv(stock_ohlc_df(), fs[2], row.names = FALSE)
-          write.csv(balance_sheet_df(), fs[3], row.names = FALSE)
-          write.csv(income_statement_df(), fs[4], row.names = FALSE)
-          write.csv(cash_flow_statement_df(), fs[5], row.names = FALSE)
-          zip(zipfile = fname, files = fs, flags = "-q")
-        } else if (input$file_type == "stata") {
-          # STATA
-          fs <- c("company_overview.csv", "stock_ohlc.dta", "balance_sheet.dta",
-                  "income_statement.dta", "cash_flow.dta")
-          tmpdir <- tempdir()
-          setwd(tempdir())
-          write.csv(company_overview_df(), fs[1])
-          write_dta(stock_ohlc_df(), fs[2])
-          write_dta(clean_names(balance_sheet_df()), fs[3])
-          write_dta(clean_names(income_statement_df()), fs[4])
-          write_dta(clean_names(cash_flow_statement_df()), fs[5])
-          zip(zipfile = fname, files = fs, flags = "-q")
-        } else if (input$file_type == "spss") {
-          # SPSS
-          fs <- c("company_overview.csv", "stock_ohlc.sav", "balance_sheet.sav",
-                  "income_statement.sav", "cash_flow.sav")
-          tmpdir <- tempdir()
-          setwd(tempdir())
-          write.csv(company_overview_df(), fs[1])
-          write_sav(stock_ohlc_df(), fs[2])
-          write_sav(clean_names(balance_sheet_df()), fs[3])
-          write_sav(clean_names(income_statement_df()), fs[4])
-          write_sav(clean_names(cash_flow_statement_df()), fs[5])
-          zip(zipfile = fname, files = fs, flags = "-q")
-        }
+        show_modal_spinner()
+        tryCatch(
+          {
+            balance_sheet_df(financial_report(input$symbol, "bsheet", input$dates[1], input$dates[2])) # nolint
+            income_statement_df(financial_report(input$symbol, "incsta", input$dates[1], input$dates[2])) # nolint
+            cash_flow_statement_df(financial_report(input$symbol, "cashflow", input$dates[1], input$dates[2])) # nolint
+            if (input$file_type == "excel") {
+              # EXCEL
+              write_xlsx(
+                list(
+                  "History" = stock_ohlc_df(),
+                  "Company Overview" = rownames_to_column(as.data.frame(company_overview_df()), " "), # nolint
+                  "Balance Sheet" = balance_sheet_df(),
+                  "Income Statement" = income_statement_df(),
+                  "Cash Flow Statement" = cash_flow_statement_df()
+                ),
+                fname,
+              )
+            } else if (input$file_type == "csv") {
+              # CSV
+              fs <- c("company_overview.csv", "stock_ohlc.csv", "balance_sheet.csv",
+                      "income_statement.csv", "cash_flow.csv")
+              tmpdir <- tempdir()
+              setwd(tempdir())
+              write.csv(company_overview_df(), fs[1])
+              write.csv(stock_ohlc_df(), fs[2], row.names = FALSE)
+              write.csv(balance_sheet_df(), fs[3], row.names = FALSE)
+              write.csv(income_statement_df(), fs[4], row.names = FALSE)
+              write.csv(cash_flow_statement_df(), fs[5], row.names = FALSE)
+              zip(zipfile = fname, files = fs, flags = "-q")
+            } else if (input$file_type == "stata") {
+              # STATA
+              fs <- c("company_overview.csv", "stock_ohlc.dta", "balance_sheet.dta",
+                      "income_statement.dta", "cash_flow.dta")
+              tmpdir <- tempdir()
+              setwd(tempdir())
+              write.csv(company_overview_df(), fs[1])
+              write_dta(stock_ohlc_df(), fs[2])
+              write_dta(clean_names(balance_sheet_df()), fs[3])
+              write_dta(clean_names(income_statement_df()), fs[4])
+              write_dta(clean_names(cash_flow_statement_df()), fs[5])
+              zip(zipfile = fname, files = fs, flags = "-q")
+            } else if (input$file_type == "spss") {
+              # SPSS
+              fs <- c("company_overview.csv", "stock_ohlc.sav", "balance_sheet.sav",
+                      "income_statement.sav", "cash_flow.sav")
+              tmpdir <- tempdir()
+              setwd(tempdir())
+              write.csv(company_overview_df(), fs[1])
+              write_sav(stock_ohlc_df(), fs[2])
+              write_sav(clean_names(balance_sheet_df()), fs[3])
+              write_sav(clean_names(income_statement_df()), fs[4])
+              write_sav(clean_names(cash_flow_statement_df()), fs[5])
+              zip(zipfile = fname, files = fs, flags = "-q")
+            }
+          },
+          error = function(e) {
+              report_failure(
+                "Oups...",
+                "Something went wrong"
+              )
+          }
+        )
+        remove_modal_spinner()
       },
       contentType = "application/zip"
     )

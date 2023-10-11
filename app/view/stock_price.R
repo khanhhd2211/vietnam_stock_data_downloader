@@ -3,6 +3,9 @@ box::use(
     # element
     div,
     tags,
+    fluidRow,
+    column,
+    mainPanel,
 
     # client-server
     NS,
@@ -12,6 +15,7 @@ box::use(
     tableOutput,
     dataTableOutput
   ],
+  plotly[plot_ly, layout, renderPlotly, plotlyOutput],
   utils[head],
   dplyr[arrange]
 )
@@ -19,13 +23,19 @@ box::use(
 #" @export
 ui <- function(id) {
   ns <- NS(id)
-  div(
+  mainPanel(
+    width = 12,
     style = "margin-bottom:25px",
-    tags$h4("Company Overview"),
-    tableOutput(ns("company_overview")),
-    tags$hr(),
-    tags$h4("Stock Trading Historical Data"),
-    dataTableOutput(ns("stock_ohlc")),
+    fluidRow(
+      column(5, tags$h4("Company Overview"), tableOutput(ns("company_overview"))),
+      column(7, plotlyOutput(ns("candle_plot")))
+    ),
+    fluidRow(
+      column(12,
+        tags$h4("Stock Trading Historical Data"),
+        dataTableOutput(ns("stock_ohlc"))
+      )
+    )
   )
 }
 
@@ -48,5 +58,16 @@ server <- function(id, company_overview, stock_ohlc) {
         ordering = FALSE
         )
     )
+
+    output$candle_plot <- renderPlotly({
+      fig <- plot_ly(stock_ohlc, x = ~time, type = "candlestick",
+                     open = ~open, close = ~close,
+                     high = ~high, low = ~low)
+      fig <- fig |> layout(title = "",
+                           margin = list(b = 0, l = 20),
+                           xaxis = list(title = "", rangeslider = list(visible = FALSE)))
+
+      fig
+    })
   })
 }
