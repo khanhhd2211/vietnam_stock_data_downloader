@@ -27,11 +27,18 @@ ui <- function(id) {
     width = 12,
     style = "margin-bottom:25px",
     fluidRow(
-      column(5, tags$h4("Company Overview"), tableOutput(ns("company_overview"))),
-      column(7, plotlyOutput(ns("candle_plot")))
+      style = "overflow-x: auto",
+      column(
+        5,
+        style = "overflow-x: auto",
+        tags$h4("Company Overview"),
+        tableOutput(ns("company_overview"))
+      ),
+      column(7, style = "overflow-x: auto", plotlyOutput(ns("candle_plot")))
     ),
     fluidRow(
       column(12,
+        style = "overflow-x: auto",
         tags$h4("Stock Trading Historical Data"),
         dataTableOutput(ns("stock_ohlc"))
       )
@@ -64,7 +71,7 @@ server <- function(id, company_overview, stock_ohlc) {
                      open = ~open, close = ~close,
                      high = ~high, low = ~low)
       fig <- fig |> layout(title = "",
-                           margin = list(b = 0, l = 20),
+                           margin = list(b = 0, l = 20, r = 10, t = 20),
                            xaxis = list(title = "", rangeslider = list(visible = FALSE)))
 
       fig

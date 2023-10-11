@@ -4,6 +4,7 @@ box::use(
   shiny[
     # element
     icon,
+    tags,
     div,
     span,
 
@@ -26,6 +27,8 @@ box::use(
 
     # layout
     fluidPage,
+    fluidRow,
+    column,
     plotOutput,
     sidebarLayout,
     mainPanel,
@@ -34,7 +37,7 @@ box::use(
     tabsetPanel,
 
     # utils
-    downloadHandler,
+    downloadHandler
   ],
   shinybusy[show_modal_spinner, remove_modal_spinner, report_failure],
   janitor[clean_names],
@@ -46,14 +49,19 @@ box::use(
   app/view/stock_price,
   app/view/financial_report_page,
   app/logic/data/fundamental[company_overview, financial_report],
-  app/logic/data/technical[stock_ohlc],
+  app/logic/data/technical[stock_ohlc]
 )
 
 #" @export
 ui <- function(id) {
   ns <- NS(id)
   fluidPage(
-    style = "margin-top:20px; margin-right:50px; margin-bottom:50px",
+    style = "margin-top:20px; margin-right:0px; margin-bottom:50px",
+    tags$head(tags$title("Vietnam Stock Data Downloader")),
+    tags$head(tags$meta(name="description", content="Đây là website được SciEco thiết kế để tải dữ liệu chứng khoán Việt Nam một cách dễ dàng và miễn phí. SciEco sử dụng các nguồn cấp dữ liệu đáng tin cậy và không giới hạn từ công ty chứng khoán và công ty phân tích thị trường tại Việt Nam.")), # nolint
+    tags$h3("Tải dữ liệu chứng khoán Việt Nam 💵"),
+    fluidRow(column(width=6, style="margin-top: 10px; margin-bottom: 10px", div("Đây là website được SciEco thiết kế để tải dữ liệu chứng khoán Việt Nam một cách dễ dàng và miễn phí. SciEco sử dụng các nguồn cấp dữ liệu đáng tin cậy và không giới hạn từ công ty chứng khoán và công ty phân tích thị trường tại Việt Nam."))), # nolint
+    fluidRow(column(width=6, style="margin-bottom: 30px", div("Để sử dụng vui lòng nhập mã cổ phiếu, và khoảng thời gian và ấn tìm kiếm, sau khi có được thông tin, vui lòng ấn tải về để tải dữ liệu mong muốn"))), # nolint
     sidebarLayout(
       # Sidebar with a slider input
       sidebarPanel(

@@ -22,7 +22,7 @@ ui <- function(id) {
   div(
     style = "margin-bottom:25px",
     class = "financial_report",
-    tags$h4("Balance Sheet"),
+    # tags$h4("Balance Sheet"),
     dataTableOutput(ns("financial_report")),
   )
 }
