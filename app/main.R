@@ -82,7 +82,7 @@ ui <- function(id) { # nolint
     tags$head(tags$meta(property = "twitter:image", content = "/static/preview.png")),
 
     # Google Adsense
-    tags$head(tgas$meta(name = "google-adsense-account", content = "ca-pub-8000236010367209")),
+    tags$head(tags$meta(name = "google-adsense-account", content = "ca-pub-8000236010367209")),
 
     fluidRow(column(width = 12, tags$img(width = "300px", alt = "logo scieco", src = "/static/logo.svg"))), # nolint
     tags$hr(),
