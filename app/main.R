@@ -60,11 +60,26 @@ box::use(
 )
 
 #" @export
-ui <- function(id) {
+ui <- function(id) { # nolint
   ns <- NS(id)
   fluidPage(
     style = "margin-top:20px; margin-right:0px; margin-bottom:50px",
     tags$head(tags$title("Vietnam Stock Data Downloader")),
+
+    # FACEBOOK
+    tags$head(tags$meta(property = "og:type", content = "website")),
+    tags$head(tags$meta(property = "og:url", content = "https://vnstock.scienceforeconomics.com/")),
+    tags$head(tags$meta(property = "og:title", content = "[SciEco] Vietnam Stock Data Downloader")),
+    tags$head(tags$meta(property = "og:description", content="Website được SciEco thiết kế để tải dữ liệu chứng khoán Việt Nam một cách dễ dàng và miễn phí. SciEco sử dụng các nguồn cấp dữ liệu đáng tin cậy và không giới hạn từ công ty chứng khoán và công ty phân tích thị trường tại Việt Nam")), # nolint
+    tags$head(tags$meta(property = "og:image", content = "/static/preview.png")),
+
+    # Twitter
+    tags$head(tags$meta(property = "twitter:card", content = "summary_large_image")),
+    tags$head(tags$meta(property = "twitter:url", content = "https://vnstock.scienceforeconomics.com/")), # nolint
+    tags$head(tags$meta(property = "twitter:title", content = "[SciEco] Vietnam Stock Data Downloader")), # nolint
+    tags$head(tags$meta(property = "twitter:description", content = "Website được SciEco thiết kế để tải dữ liệu chứng khoán Việt Nam một cách dễ dàng và miễn phí. SciEco sử dụng các nguồn cấp dữ liệu đáng tin cậy và không giới hạn từ công ty chứng khoán và công ty phân tích thị trường tại Việt Nam")), # nolint
+    tags$head(tags$meta(property = "twitter:image", content = "/static/preview.png")),
+
     fluidRow(column(width = 12, tags$img(width = "300px", alt = "logo scieco", src = "/static/logo.svg"))), # nolint
     tags$hr(),
     tags$h3("Tải dữ liệu chứng khoán Việt Nam 💵"),
