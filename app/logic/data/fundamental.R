@@ -70,12 +70,26 @@ financial_report <- function(symbol, type, start_date, end_date) {
   }
 
   if (start_year < end_year) {
-    for (year in start_year:end_year) {
+    count_null <- 0
+    current_year <- as.numeric(format(Sys.Date(), "%Y"))
+    if (end_year > current_year) {
+      end_year <- current_year
+    }
+    for (year in end_year:start_year) {
       if (!exists("df_all")) {
         df_all <- read_year(year)
       } else {
-        df_all <- read_year(year) %>%
-          full_join(df_all, by = "Metrics")
+        temp_df <- read_year(year)
+        if (sum(is.na(temp_df[-1])) == nrow(temp_df) * ncol(temp_df[-1])) {
+          count_null <- count_null + 1
+        } else {
+          count_null <- 0
+        }
+        df_all <- df_all %>%
+          full_join(temp_df, by = "Metrics")
+        if (count_null == 3) {
+          break
+        }
       }
     }
 

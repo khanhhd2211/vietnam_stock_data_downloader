@@ -81,6 +81,9 @@ ui <- function(id) { # nolint
     tags$head(tags$meta(property = "twitter:description", content = "Website được SciEco thiết kế để tải dữ liệu chứng khoán Việt Nam một cách dễ dàng và miễn phí. SciEco sử dụng các nguồn cấp dữ liệu đáng tin cậy và không giới hạn từ công ty chứng khoán và công ty phân tích thị trường tại Việt Nam")), # nolint
     tags$head(tags$meta(property = "twitter:image", content = "/static/preview.png")),
 
+    # Google Adsense
+    tags$head(tgas$meta(name = "google-adsense-account", content = "ca-pub-8000236010367209")),
+
     fluidRow(column(width = 12, tags$img(width = "300px", alt = "logo scieco", src = "/static/logo.svg"))), # nolint
     tags$hr(),
     tags$h3("Tải dữ liệu chứng khoán Việt Nam 💵"),
