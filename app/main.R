@@ -65,6 +65,7 @@ ui <- function(id) { # nolint
   fluidPage(
     style = "margin-top:20px; margin-right:0px; margin-bottom:50px",
     tags$head(tags$title("Vietnam Stock Data Downloader")),
+    tags$head(tags$meta(name="description", content="Đây là website được SciEco thiết kế để tải dữ liệu chứng khoán Việt Nam một cách dễ dàng và miễn phí. SciEco sử dụng các nguồn cấp dữ liệu đáng tin cậy và không giới hạn từ công ty chứng khoán và công ty phân tích thị trường tại Việt Nam.")), # nolint
 
     # FACEBOOK
     tags$head(tags$meta(property = "og:type", content = "website")),
@@ -83,7 +84,6 @@ ui <- function(id) { # nolint
     fluidRow(column(width = 12, tags$img(width = "300px", alt = "logo scieco", src = "/static/logo.svg"))), # nolint
     tags$hr(),
     tags$h3("Tải dữ liệu chứng khoán Việt Nam 💵"),
-    tags$head(tags$meta(name="description", content="Đây là website được SciEco thiết kế để tải dữ liệu chứng khoán Việt Nam một cách dễ dàng và miễn phí. SciEco sử dụng các nguồn cấp dữ liệu đáng tin cậy và không giới hạn từ công ty chứng khoán và công ty phân tích thị trường tại Việt Nam.")), # nolint
     fluidRow(column(width = 6, style="margin-top: 10px; margin-bottom: 10px", div("Đây là website được SciEco thiết kế để tải dữ liệu chứng khoán Việt Nam một cách dễ dàng và miễn phí. SciEco sử dụng các nguồn cấp dữ liệu đáng tin cậy và không giới hạn từ công ty chứng khoán và công ty phân tích thị trường tại Việt Nam."))), # nolint
     fluidRow(column(width = 6, style="margin-bottom: 30px", div("Để sử dụng vui lòng nhập mã cổ phiếu, và khoảng thời gian và ấn tìm kiếm, sau khi có được thông tin, vui lòng ấn tải về để tải dữ liệu mong muốn."))), # nolint
     sidebarLayout(
