@@ -13,7 +13,9 @@ box::use(
     renderTable,
     renderDataTable,
     tableOutput,
-    dataTableOutput
+    dataTableOutput,
+    uiOutput,
+    renderUI
   ],
   plotly[plot_ly, layout, renderPlotly, plotlyOutput],
   utils[head],
@@ -31,7 +33,7 @@ ui <- function(id) {
       column(
         5,
         style = "overflow-x: auto",
-        tags$h4("Company Overview"),
+        uiOutput(ns("company_overview_text")),
         tableOutput(ns("company_overview"))
       ),
       column(7, style = "overflow-x: auto", plotlyOutput(ns("candle_plot")))
@@ -39,7 +41,7 @@ ui <- function(id) {
     fluidRow(
       column(12,
         style = "overflow-x: auto",
-        tags$h4("Stock Trading Historical Data"),
+        uiOutput(ns("stock_ohlc_text")),
         dataTableOutput(ns("stock_ohlc"))
       )
     )
@@ -49,12 +51,19 @@ ui <- function(id) {
 #" @export
 server <- function(id, company_overview, stock_ohlc) {
   moduleServer(id, function(input, output, session) {
+    output$company_overview_text <- renderUI({
+      tags$h4("Company Overview")
+    })
+
     output$company_overview <- renderTable(
       company_overview,
       rownames = TRUE,
       colnames = FALSE
     )
 
+    output$stock_ohlc_text <- renderUI({
+      tags$h4("Stock Trading Historical Data")
+    })
     output$stock_ohlc <- renderDataTable(
       arrange(stock_ohlc, desc(time)),
       options = list(

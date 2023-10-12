@@ -39,7 +39,14 @@ box::use(
     # utils
     downloadHandler
   ],
-  shinybusy[show_modal_spinner, remove_modal_spinner, report_failure],
+  shinybusy[
+    show_modal_progress_line,
+    update_modal_progress,
+    remove_modal_progress,
+    show_modal_spinner,
+    remove_modal_spinner,
+    report_failure
+  ],
   janitor[clean_names],
   utils[write.csv, zip],
   writexl[write_xlsx],
@@ -58,10 +65,12 @@ ui <- function(id) {
   fluidPage(
     style = "margin-top:20px; margin-right:0px; margin-bottom:50px",
     tags$head(tags$title("Vietnam Stock Data Downloader")),
-    tags$head(tags$meta(name="description", content="Đây là website được SciEco thiết kế để tải dữ liệu chứng khoán Việt Nam một cách dễ dàng và miễn phí. SciEco sử dụng các nguồn cấp dữ liệu đáng tin cậy và không giới hạn từ công ty chứng khoán và công ty phân tích thị trường tại Việt Nam.")), # nolint
+    fluidRow(column(width = 12, tags$img(width = "300px", alt = "logo scieco", src = "/static/logo.svg"))), # nolint
+    tags$hr(),
     tags$h3("Tải dữ liệu chứng khoán Việt Nam 💵"),
-    fluidRow(column(width=6, style="margin-top: 10px; margin-bottom: 10px", div("Đây là website được SciEco thiết kế để tải dữ liệu chứng khoán Việt Nam một cách dễ dàng và miễn phí. SciEco sử dụng các nguồn cấp dữ liệu đáng tin cậy và không giới hạn từ công ty chứng khoán và công ty phân tích thị trường tại Việt Nam."))), # nolint
-    fluidRow(column(width=6, style="margin-bottom: 30px", div("Để sử dụng vui lòng nhập mã cổ phiếu, và khoảng thời gian và ấn tìm kiếm, sau khi có được thông tin, vui lòng ấn tải về để tải dữ liệu mong muốn"))), # nolint
+    tags$head(tags$meta(name="description", content="Đây là website được SciEco thiết kế để tải dữ liệu chứng khoán Việt Nam một cách dễ dàng và miễn phí. SciEco sử dụng các nguồn cấp dữ liệu đáng tin cậy và không giới hạn từ công ty chứng khoán và công ty phân tích thị trường tại Việt Nam.")), # nolint
+    fluidRow(column(width = 6, style="margin-top: 10px; margin-bottom: 10px", div("Đây là website được SciEco thiết kế để tải dữ liệu chứng khoán Việt Nam một cách dễ dàng và miễn phí. SciEco sử dụng các nguồn cấp dữ liệu đáng tin cậy và không giới hạn từ công ty chứng khoán và công ty phân tích thị trường tại Việt Nam."))), # nolint
+    fluidRow(column(width = 6, style="margin-bottom: 30px", div("Để sử dụng vui lòng nhập mã cổ phiếu, và khoảng thời gian và ấn tìm kiếm, sau khi có được thông tin, vui lòng ấn tải về để tải dữ liệu mong muốn."))), # nolint
     sidebarLayout(
       # Sidebar with a slider input
       sidebarPanel(
@@ -125,7 +134,7 @@ server <- function(id) {
     })
 
     observeEvent(input$on_search, {
-        show_modal_spinner()
+        show_modal_progress_line()
         tryCatch(
           {
             company_overview_df(company_overview(input$symbol))
@@ -134,13 +143,18 @@ server <- function(id) {
               start_date = input$dates[1],
               end_date = input$dates[2]
             ))
-            balance_sheet_df(financial_report(input$symbol, "bsheet", input$dates[2], input$dates[2])) # nolint
-            income_statement_df(financial_report(input$symbol, "incsta", input$dates[2], input$dates[2])) # nolint
-            cash_flow_statement_df(financial_report(input$symbol, "cashflow", input$dates[2], input$dates[2])) # nolint
+            update_modal_progress(0.1)
+            balance_sheet_df(financial_report(input$symbol, "bsheet", input$dates[1], input$dates[2])) # nolint
+            update_modal_progress(0.4)
+            income_statement_df(financial_report(input$symbol, "incsta", input$dates[1], input$dates[2])) # nolint
+            update_modal_progress(0.7)
+            cash_flow_statement_df(financial_report(input$symbol, "cashflow", input$dates[1], input$dates[2])) # nolint
+            update_modal_progress(0.9)
             stock_price$server("stock_price", company_overview_df(), stock_ohlc_df())
-            financial_report_page$server("balance_sheet", balance_sheet_df())
-            financial_report_page$server("income_statement", income_statement_df())
-            financial_report_page$server("cash_flow_statement", cash_flow_statement_df())
+            financial_report_page$server("balance_sheet", balance_sheet_df()[1:5])
+            financial_report_page$server("income_statement", income_statement_df()[1:5])
+            financial_report_page$server("cash_flow_statement", cash_flow_statement_df()[1:5])
+            update_modal_progress(1)
           },
           error = function(e) {
             report_failure(
@@ -149,7 +163,7 @@ server <- function(id) {
             )
           }
         )
-        remove_modal_spinner()
+        remove_modal_progress()
     })
 
     output$downloadData <- downloadHandler(
@@ -167,9 +181,9 @@ server <- function(id) {
         show_modal_spinner()
         tryCatch(
           {
-            balance_sheet_df(financial_report(input$symbol, "bsheet", input$dates[1], input$dates[2])) # nolint
-            income_statement_df(financial_report(input$symbol, "incsta", input$dates[1], input$dates[2])) # nolint
-            cash_flow_statement_df(financial_report(input$symbol, "cashflow", input$dates[1], input$dates[2])) # nolint
+            # balance_sheet_df(financial_report(input$symbol, "bsheet", input$dates[1], input$dates[2])) # nolint
+            # income_statement_df(financial_report(input$symbol, "incsta", input$dates[1], input$dates[2])) # nolint
+            # cash_flow_statement_df(financial_report(input$symbol, "cashflow", input$dates[1], input$dates[2])) # nolint
             if (input$file_type == "excel") {
               # EXCEL
               write_xlsx(

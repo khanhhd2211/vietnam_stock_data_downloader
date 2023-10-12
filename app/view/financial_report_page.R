@@ -3,6 +3,7 @@ box::use(
     # element
     div,
     tags,
+    column,
 
     # client-server
     NS,
@@ -10,6 +11,8 @@ box::use(
     renderTable,
     # renderDataTable,
     tableOutput,
+    uiOutput,
+    renderUI
     # dataTableOutput
   ],
   DT[datatable, formatCurrency, renderDataTable, dataTableOutput],
@@ -22,18 +25,26 @@ ui <- function(id) {
   div(
     style = "margin-bottom:25px",
     class = "financial_report",
-    # tags$h4("Balance Sheet"),
+    uiOutput(ns("financial_report_text")),
     dataTableOutput(ns("financial_report")),
   )
 }
 
 #' @export
-server <- function(id, balance_sheet) {
+server <- function(id, report) {
   moduleServer(id, function(input, output, session) {
+    output$financial_report_text <- renderUI({
+      column(
+        width = 8,
+        style = "padding: 0; margin-top: 25px; margin-bottom:25px;",
+        tags$b("Lưu ý"),
+        ": bảng bên dưới chỉ hiển thị năm cuối cùng trong khoảng thời gian được tìm kiếm, để lấy dữ liệu đầy đủ các năm, vui lòng ấn tải về.") # nolint
+    })
+
     output$financial_report <- renderDataTable(
       formatCurrency(
         datatable(
-          balance_sheet,
+          report,
           rownames = FALSE,
           options = list(
             lengthChange = FALSE,
@@ -43,7 +54,7 @@ server <- function(id, balance_sheet) {
             pageLength = 25
           ),
         ),
-        names(balance_sheet)[2:ncol(balance_sheet)],
+        names(report)[2:ncol(report)],
         currency = "",
         interval = 3,
         mark = ".",
