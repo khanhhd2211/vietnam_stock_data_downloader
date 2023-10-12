@@ -7,3 +7,5 @@ Dự án mã nguồn mở được SciEco thiết kế để tải dữ liệu c
 [https://vnstock.scienceforeconomics.com/](https://vnstock.scienceforeconomics.com/)
 
 ![](app/static/preview.png)
+
+**Youtube Demo**: [https://youtu.be/d2x4G03SZi4?si=mMqAeBOGy9_RS5wW](https://youtu.be/d2x4G03SZi4?si=mMqAeBOGy9_RS5wW)
