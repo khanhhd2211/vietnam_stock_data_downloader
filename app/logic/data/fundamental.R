@@ -1,6 +1,5 @@
 box::use(
   httr,
-  readxl[read_excel],
   shiny[renderText, renderTable],
   dplyr[rename, select, `%>%`, mutate_at, mutate, case_when, row_number, full_join],
   tidyr[drop_na],

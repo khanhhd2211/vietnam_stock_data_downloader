@@ -21,13 +21,13 @@ RUN apt-get update && \
 
 # copy necessary files
 ## app folder
-COPY . ./app
 
+COPY . ./app
 WORKDIR /app
 
 # install renv & restore packages
 RUN Rscript -e 'install.packages("renv")'
-RUN Rscript -e 'renv::restore()'
+RUN Rscript -e 'renv::restore(clean=TRUE)'
 
 # expose port
 EXPOSE 10002
