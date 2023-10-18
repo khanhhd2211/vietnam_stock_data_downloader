@@ -69,24 +69,21 @@ ui <- function(id) { # nolint
 
     # FACEBOOK
     tags$head(tags$meta(property = "og:type", content = "website")),
-    tags$head(tags$meta(property = "og:url", content = "https://vietnam-stock-data-downloader.tech/")), # nolint
+    tags$head(tags$meta(property = "og:url", content = "https://indicators.scienceforeconomics.com/")), # nolint
     tags$head(tags$meta(property = "og:title", content = "Vietnam Stock Data Downloader")),
     tags$head(tags$meta(property = "og:description", content="Dự án mã nguồn mở được thiết kế để tải dữ liệu chứng khoán Việt Nam một cách dễ dàng và miễn phí. Dự án sử dụng các nguồn cấp dữ liệu đáng tin cậy và không giới hạn của các công ty niêm yết trên sàn chứng khoán Việt Nam.")), # nolint
-    tags$head(tags$meta(property = "og:image", content = "/static/preview.png")),
+    tags$head(tags$meta(property = "og:image", content = "static/preview.png")),
 
     # Twitter
     tags$head(tags$meta(property = "twitter:card", content = "summary_large_image")),
-    tags$head(tags$meta(property = "twitter:url", content = "https://vietnam-stock-data-downloader.tech/")), # nolint
+    tags$head(tags$meta(property = "twitter:url", content = "https://indicators.scienceforeconomics.com/")), # nolint
     tags$head(tags$meta(property = "twitter:title", content = "Vietnam Stock Data Downloader")), # nolint
     tags$head(tags$meta(property = "twitter:description", content = "Dự án mã nguồn mở được thiết kế để tải dữ liệu chứng khoán Việt Nam một cách dễ dàng và miễn phí. Dự án sử dụng các nguồn cấp dữ liệu đáng tin cậy và không giới hạn của các công ty niêm yết trên sàn chứng khoán Việt Nam.")), # nolint
-    tags$head(tags$meta(property = "twitter:image", content = "/static/preview.png")),
+    tags$head(tags$meta(property = "twitter:image", content = "static/preview.png")),
 
-    # Google Adsense
-    tags$head(tags$meta(name = "google-adsense-account", content = "ca-pub-8000236010367209")),
-
-    # fluidRow(column(width = 12, tags$img(width = "300px", alt = "logo scieco", src = "/static/logo.svg"))), # nolint
+    fluidRow(column(width = 12, tags$img(width = "300px", alt = "logo scieco", src = "static/logo.svg"))), # nolint
+    div(tags$hr()),
     tags$h3("Tải dữ liệu chứng khoán Việt Nam 💵"),
-    tags$hr(),
     fluidRow(column(width = 6, style="margin-top: 10px; margin-bottom: 10px", div("Dự án mã nguồn mở được thiết kế để tải dữ liệu chứng khoán Việt Nam một cách dễ dàng và miễn phí. Dự án sử dụng các nguồn cấp dữ liệu đáng tin cậy và không giới hạn của các công ty niêm yết trên sàn chứng khoán Việt Nam."))), # nolint
     fluidRow(column(width = 6, style="margin-bottom: 30px", div("Để sử dụng vui lòng nhập mã cổ phiếu, và khoảng thời gian và ấn tìm kiếm, sau khi có được thông tin, vui lòng ấn tải về để tải dữ liệu mong muốn."))), # nolint
     sidebarLayout(
