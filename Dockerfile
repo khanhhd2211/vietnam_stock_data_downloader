@@ -27,10 +27,10 @@ WORKDIR /app
 
 # install renv & restore packages
 RUN Rscript -e 'install.packages("renv")'
-RUN Rscript -e 'renv::restore(clean=TRUE)'
+RUN Rscript -e 'renv::restore()'
 
 # expose port
-EXPOSE 10002
+EXPOSE 8080
 
 # run app on container start
-CMD ["R", "-e", "shiny::runApp('/app', launch.browser=FALSE, host = '0.0.0.0', port = 10002)"]
+CMD ["R", "-e", "shiny::runApp('/app', launch.browser=FALSE, host = '0.0.0.0', port = 8080)"]
