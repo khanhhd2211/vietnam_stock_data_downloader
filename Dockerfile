@@ -1,31 +1,29 @@
 # Base image https://hub.docker.com/u/rocker/
-FROM openanalytics/r-base
-
-LABEL maintainer "Tobias Verbeke <tobias.verbeke@openanalytics.eu>"
+FROM rocker/shiny:latest
 
 # system libraries of general use
-RUN apt-get update && apt-get install -y \
-    sudo \
-    pandoc \
-    pandoc-citeproc \
-    libcurl4-gnutls-dev \
+## install debian packages
+RUN apt-get update -qq && apt-get -y --no-install-recommends install \
+    libxml2-dev \
     libcairo2-dev \
-    libxt-dev \
-    libssl-dev \
+    libsqlite3-dev \
+    libmariadbd-dev \
+    libpq-dev \
     libssh2-1-dev \
-    libssl1.0.0
+    unixodbc-dev \
+    libcurl4-openssl-dev \
+    libssl-dev
 
-# system library dependency for the euler app
-RUN apt-get update && apt-get install -y \
-    libmpfr-dev
+## update system libraries
+RUN apt-get update && \
+    apt-get upgrade -y && \
+    apt-get clean
 
 # copy necessary files
 ## app folder
 
-RUN mkdir /root/app
-
-COPY . /root/app
-WORKDIR /root/app
+COPY . ./app
+WORKDIR /app
 
 # install renv & restore packages
 RUN Rscript -e 'install.packages("renv")'
@@ -35,5 +33,4 @@ RUN Rscript -e 'renv::restore()'
 EXPOSE 3838
 
 # run app on container start
-# CMD ["R", "-e", "shiny::runApp('/app', launch.browser=FALSE, host = '0.0.0.0', port = 8080)"]
-CMD ["R", "-e", "shiny::runApp('/root/app')"]
+CMD ["R", "-e", "shiny::runApp('/app', launch.browser=FALSE, host = '0.0.0.0', port = 3838)"]
