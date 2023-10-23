@@ -125,9 +125,10 @@ financial_report <- function(symbol, type, report_range = "quarterly", get_all =
     df$quarter <- as.character(df$quarter)
 
     # Create an 'index' column based on report_range
-    # if (report_range == 'yearly') {
-    #   df$time <- df$year
-    # } else if (report_range == 'quarterly') {
+    if (report_range == 'yearly') {
+      df <- df[, !(names(df) %in% c("quarter"))]
+    }
+    # else if (report_range == 'quarterly') {
     #   df <- mutate(
     #     df, 
     #     time = paste(df$year, "-Q", df$quarter, sep = ""),
@@ -136,7 +137,6 @@ financial_report <- function(symbol, type, report_range = "quarterly", get_all =
     # }
 
     # Set 'index' as the index and drop 'year' and 'quarter' columns
-    # df <- df[, !(names(df) %in% c("year", "quarter"))]
 
     return(df)
   } else {

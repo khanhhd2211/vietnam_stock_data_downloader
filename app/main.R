@@ -98,6 +98,14 @@ ui <- function(id) { # nolint
                      "Date range",
                      start = as.character(Sys.Date() - 365),
                      end = as.character(Sys.Date())),
+        selectInput(
+          ns("fin_report_range"),
+          "Financial Report Range:",
+          c(
+            "Quarterly" = "quarterly",
+            "Yearly" = "yearly"
+          )
+        ),
         actionButton(
           ns("on_search"),
           span("Search", id = "UpdateAnimate", class = ""),
@@ -159,11 +167,11 @@ server <- function(id) {
               end_date = input$dates[2]
             ))
             update_modal_progress(0.1)
-            balance_sheet_df(financial_report(input$symbol, "balancesheet")) # nolint
+            balance_sheet_df(financial_report(input$symbol, "balancesheet", input$fin_report_range)) # nolint
             update_modal_progress(0.4)
-            income_statement_df(financial_report(input$symbol, "incomestatement")) # nolint
+            income_statement_df(financial_report(input$symbol, "incomestatement", input$fin_report_range)) # nolint
             update_modal_progress(0.7)
-            cash_flow_statement_df(financial_report(input$symbol, "cashflow")) # nolint
+            cash_flow_statement_df(financial_report(input$symbol, "cashflow", input$fin_report_range)) # nolint
             update_modal_progress(0.9)
             stock_price$server("stock_price", company_overview_df(), stock_ohlc_df())
             financial_report_page$server("balance_sheet", balance_sheet_df()[1:5])
