@@ -48,6 +48,7 @@ box::use(
     report_failure
   ],
   janitor[clean_names],
+  dplyr[rename],
   utils[write.csv, zip],
   writexl[write_xlsx],
   tibble[rownames_to_column],
@@ -241,7 +242,13 @@ server <- function(id) {
               write.csv(company_overview_df(), fs[1])
               write_dta(stock_ohlc_df(), fs[2])
               write_dta(clean_names(balance_sheet_df()), fs[3])
-              write_dta(clean_names(income_statement_df()), fs[4])
+              write_dta(
+                rename(
+                  clean_names(income_statement_df()),
+                  "qu_share_holder_income_growth" = "quarter_share_holder_income_growth"
+                ),
+                fs[4]
+              )
               write_dta(clean_names(cash_flow_statement_df()), fs[5])
               zip(zipfile = fname, files = fs, flags = "-q")
             } else if (input$file_type == "spss") {
@@ -259,6 +266,7 @@ server <- function(id) {
             }
           },
           error = function(e) {
+              print(e)
               report_failure(
                 "Oups...",
                 "Something went wrong"
