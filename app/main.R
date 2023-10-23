@@ -159,11 +159,11 @@ server <- function(id) {
               end_date = input$dates[2]
             ))
             update_modal_progress(0.1)
-            balance_sheet_df(financial_report(input$symbol, "bsheet", input$dates[1], input$dates[2])) # nolint
+            balance_sheet_df(financial_report(input$symbol, "balancesheet")) # nolint
             update_modal_progress(0.4)
-            income_statement_df(financial_report(input$symbol, "incsta", input$dates[1], input$dates[2])) # nolint
+            income_statement_df(financial_report(input$symbol, "incomestatement")) # nolint
             update_modal_progress(0.7)
-            cash_flow_statement_df(financial_report(input$symbol, "cashflow", input$dates[1], input$dates[2])) # nolint
+            cash_flow_statement_df(financial_report(input$symbol, "cashflow")) # nolint
             update_modal_progress(0.9)
             stock_price$server("stock_price", company_overview_df(), stock_ohlc_df())
             financial_report_page$server("balance_sheet", balance_sheet_df()[1:5])
@@ -172,6 +172,7 @@ server <- function(id) {
             update_modal_progress(1)
           },
           error = function(e) {
+            print(e)
             report_failure(
               "Oups...",
               "Something went wrong"

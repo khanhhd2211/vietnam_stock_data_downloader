@@ -11,13 +11,14 @@ box::use(
     NS,
     moduleServer,
     renderTable,
-    renderDataTable,
+    # renderDataTable,
     tableOutput,
-    dataTableOutput,
+    # dataTableOutput,
     uiOutput,
     renderUI
   ],
   plotly[plot_ly, layout, renderPlotly, plotlyOutput],
+  DT[renderDataTable, dataTableOutput],
   utils[head],
   dplyr[arrange]
 )

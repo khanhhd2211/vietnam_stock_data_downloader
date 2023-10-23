@@ -1,0 +1,12 @@
+name: vnstock
+title: vnstock
+username: khanhhd2001
+account: khanhhd2001
+server: shinyapps.io
+hostUrl: https://api.shinyapps.io/v1
+appId: 10255774
+bundleId: 7828509
+url: https://khanhhd2001.shinyapps.io/vnstock/
+version: 1
+asMultiple: FALSE
+asStatic: FALSE
