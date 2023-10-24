@@ -5,7 +5,7 @@ account: khanhhd2001
 server: shinyapps.io
 hostUrl: https://api.shinyapps.io/v1
 appId: 10255770
-bundleId: 7838305
+bundleId: 7838310
 url: https://khanhhd2001.shinyapps.io/vietnam_stock_data_downloader/
 version: 1
 asMultiple: FALSE
