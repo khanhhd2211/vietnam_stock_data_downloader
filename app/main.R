@@ -24,6 +24,8 @@ box::use(
     reactiveVal,
     downloadButton,
     conditionalPanel,
+    uiOutput, 
+    renderUI,
 
     # layout
     fluidPage,
@@ -91,12 +93,14 @@ ui <- function(id) { # nolint
       # Sidebar with a slider input
       sidebarPanel(
         div(
-          textInput(ns("symbol"), "Search Symbol",
-                    value = "VNM", placeholder = "Search company"),
-          search$ui(ns("search"))
+          textInput(ns("symbol"), "Search Symbol", placeholder = "Search company"),
+          search$ui(ns("search")),
+          uiOutput(
+            ns("symbol_list"), 
+          )
         ),
         dateRangeInput(ns("dates"),
-                     "Date range",
+                     "Date Range",
                      start = as.character(Sys.Date() - 365),
                      end = as.character(Sys.Date())),
         selectInput(
@@ -152,27 +156,70 @@ server <- function(id) {
     balance_sheet_df <- reactiveVal()
     income_statement_df <- reactiveVal()
     cash_flow_statement_df <- reactiveVal()
+    symbol_list <- reactiveVal(c())
 
     observeEvent(input$symbol, {
-      search$server("search", input$symbol)
+      search$server("search", input$symbol, symbol_list)
+    })
+
+    observeEvent(input$choose_symbol_btn, {
+      symbol_list(
+        unique(
+          append(
+            symbol_list(),
+            input$choose_symbol_btn
+          )
+        )
+      )
+      output$symbol_list <- if (length(symbol_list()) > 0) {
+        renderUI({
+          div(
+            div("Symbol List", style = "margin-bottom: 5px; font-weight: 700;"),
+            div(
+              style = "
+                background-color: white;
+                padding: 5px 10px;
+                border-radius: 4px;
+                border: 1px solid #ccc;
+                margin-bottom: 10px;
+                line-height: 200%;
+              ",
+              lapply(seq_len(length(symbol_list())), function(i) {
+                symbol <- symbol_list()[i]
+                tags$span(
+                  symbol,
+                  style = "
+                    background-color: #eee;
+                    padding: 2px 5px;
+                    border-radius: 4px;
+                  "
+                )
+              })
+            )
+          )
+        })
+      }
+      # output$search_res_ui <- renderUI(div(""))
+      search$server("search", input$symbol, symbol_list, clear=TRUE)
     })
 
     observeEvent(input$on_search, {
         show_modal_progress_line()
+        symbol <- symbol_list()[1]
         tryCatch(
           {
-            company_overview_df(company_overview(input$symbol))
+            company_overview_df(company_overview(symbol))
             stock_ohlc_df(stock_ohlc(
-              input$symbol,
+              symbol,
               start_date = input$dates[1],
               end_date = input$dates[2]
             ))
             update_modal_progress(0.1)
-            balance_sheet_df(financial_report(input$symbol, "balancesheet", input$fin_report_range)) # nolint
+            balance_sheet_df(financial_report(symbol, "balancesheet", input$fin_report_range)) # nolint
             update_modal_progress(0.4)
-            income_statement_df(financial_report(input$symbol, "incomestatement", input$fin_report_range)) # nolint
+            income_statement_df(financial_report(symbol, "incomestatement", input$fin_report_range)) # nolint
             update_modal_progress(0.7)
-            cash_flow_statement_df(financial_report(input$symbol, "cashflow", input$fin_report_range)) # nolint
+            cash_flow_statement_df(financial_report(symbol, "cashflow", input$fin_report_range)) # nolint
             update_modal_progress(0.9)
             stock_price$server("stock_price", company_overview_df(), stock_ohlc_df())
             financial_report_page$server("balance_sheet", balance_sheet_df()[1:5])
@@ -181,7 +228,6 @@ server <- function(id) {
             update_modal_progress(1)
           },
           error = function(e) {
-            print(e)
             report_failure(
               "Oups...",
               "Something went wrong"
@@ -193,84 +239,90 @@ server <- function(id) {
 
     output$downloadData <- downloadHandler(
       filename = function() {
-        if (input$file_type == "excel") {
-          paste0(input$symbol, "_", "output", "_", as.character(Sys.Date()), ".xlsx")
-        } else {
-          paste0(
-            input$symbol, "_", "output", "_", 
-            input$file_type, "_", as.character(Sys.Date()), ".zip"
-          )
-        }
+        paste0("output", "_", input$file_type, "_", as.character(Sys.Date()), ".zip")
       },
       content = function(fname) {
         show_modal_spinner()
         tryCatch(
           {
-            # balance_sheet_df(financial_report(input$symbol, "bsheet", input$dates[1], input$dates[2])) # nolint
-            # income_statement_df(financial_report(input$symbol, "incsta", input$dates[1], input$dates[2])) # nolint
-            # cash_flow_statement_df(financial_report(input$symbol, "cashflow", input$dates[1], input$dates[2])) # nolint
             if (input$file_type == "excel") {
               # EXCEL
-              write_xlsx(
-                list(
-                  "History" = stock_ohlc_df(),
-                  "Company Overview" = rownames_to_column(as.data.frame(company_overview_df()), " "), # nolint
-                  "Balance Sheet" = balance_sheet_df(),
-                  "Income Statement" = income_statement_df(),
-                  "Cash Flow Statement" = cash_flow_statement_df()
-                ),
-                fname,
-              )
+              setwd(tempdir())
+              for (symbol in symbol_list()) {
+                write_xlsx(
+                  list(
+                    "History" = stock_ohlc(symbol, start_date = input$dates[1], end_date = input$dates[2]),
+                    "Company Overview" = rownames_to_column(as.data.frame(company_overview(symbol)), " "), # nolint
+                    "Balance Sheet" = financial_report(symbol, "balancesheet", input$fin_report_range),
+                    "Income Statement" = financial_report(symbol, "incomestatement", input$fin_report_range),
+                    "Cash Flow Statement" = financial_report(symbol, "cashflow", input$fin_report_range)
+                  ),
+                  paste0(symbol, ".xlsx")
+                )
+              }
+              zip(zipfile = fname, files = paste0(symbol_list(), ".xlsx"), flags = "-q")
             } else if (input$file_type == "csv") {
               # CSV
-              fs <- c("company_overview.csv", "stock_ohlc.csv", "balance_sheet.csv",
-                      "income_statement.csv", "cash_flow.csv")
-              tmpdir <- tempdir()
               setwd(tempdir())
-              write.csv(company_overview_df(), fs[1])
-              write.csv(stock_ohlc_df(), fs[2], row.names = FALSE)
-              write.csv(balance_sheet_df(), fs[3], row.names = FALSE)
-              write.csv(income_statement_df(), fs[4], row.names = FALSE)
-              write.csv(cash_flow_statement_df(), fs[5], row.names = FALSE)
-              zip(zipfile = fname, files = fs, flags = "-q")
-            } else if (input$file_type == "stata") {
+              do.call(file.remove, list(list.files(getwd(), full.names = TRUE)))
+              for (symbol in symbol_list()) {
+                fs <- c("company_overview.csv", "stock_ohlc.csv", "balance_sheet.csv",
+                        "income_statement.csv", "cash_flow.csv")
+                fs <- paste(symbol, fs, sep = "_")
+                write.csv(rownames_to_column(as.data.frame(company_overview(symbol)), " "), fs[1])
+                write.csv(stock_ohlc(symbol, start_date = input$dates[1], end_date = input$dates[2]), fs[2], row.names = FALSE)
+                write.csv(financial_report(symbol, "balancesheet", input$fin_report_range), fs[3], row.names = FALSE)
+                write.csv(financial_report(symbol, "incomestatement", input$fin_report_range), fs[4], row.names = FALSE)
+                write.csv(financial_report(symbol, "cashflow", input$fin_report_range), fs[5], row.names = FALSE)
+                zip(zipfile = paste0(symbol, ".zip"), files = fs, flags = "-q")
+              }
+              zip(zipfile = fname, files = paste0(symbol_list(), ".zip"), flags = "-q")
+            }
+             else if (input$file_type == "stata") {
               # STATA
-              fs <- c("company_overview.csv", "stock_ohlc.dta", "balance_sheet.dta",
-                      "income_statement.dta", "cash_flow.dta")
-              tmpdir <- tempdir()
               setwd(tempdir())
-              write.csv(company_overview_df(), fs[1])
-              write_dta(stock_ohlc_df(), fs[2])
-              write_dta(clean_names(balance_sheet_df()), fs[3])
-              write_dta(
-                rename(
-                  clean_names(income_statement_df()),
-                  "qu_share_holder_income_growth" = "quarter_share_holder_income_growth"
-                ),
-                fs[4]
-              )
-              write_dta(clean_names(cash_flow_statement_df()), fs[5])
-              zip(zipfile = fname, files = fs, flags = "-q")
+              do.call(file.remove, list(list.files(getwd(), full.names = TRUE)))
+              for (symbol in symbol_list()) {
+                fs <- c("company_overview.csv", "stock_ohlc.dta", "balance_sheet.dta",
+                        "income_statement.dta", "cash_flow.dta")
+                write.csv(rownames_to_column(as.data.frame(company_overview(symbol)), " "), fs[1])
+                write_dta(stock_ohlc(symbol, start_date = input$dates[1], end_date = input$dates[2]), fs[2])
+                write_dta(clean_names(financial_report(symbol, "balancesheet", input$fin_report_range)), fs[3])
+                write_dta(
+                  rename(
+                    clean_names(financial_report(symbol, "incomestatement", input$fin_report_range)),
+                    "qu_share_holder_income_growth" = "quarter_share_holder_income_growth"
+                  ), 
+                  fs[4]
+                )
+                write_dta(clean_names(financial_report(symbol, "cashflow", input$fin_report_range)), fs[5])
+                zip(zipfile = paste0(symbol, ".zip"), files = fs, flags = "-q")
+              }
+              zip(zipfile = fname, files = paste0(symbol_list(), ".zip"), flags = "-q")
             } else if (input$file_type == "spss") {
               # SPSS
-              fs <- c("company_overview.csv", "stock_ohlc.sav", "balance_sheet.sav",
-                      "income_statement.sav", "cash_flow.sav")
-              tmpdir <- tempdir()
               setwd(tempdir())
-              write.csv(company_overview_df(), fs[1])
-              write_sav(stock_ohlc_df(), fs[2])
-              write_sav(clean_names(balance_sheet_df()), fs[3])
-              write_sav(clean_names(income_statement_df()), fs[4])
-              write_sav(clean_names(cash_flow_statement_df()), fs[5])
-              zip(zipfile = fname, files = fs, flags = "-q")
+              do.call(file.remove, list(list.files(getwd(), full.names = TRUE)))
+              
+              for (symbol in symbol_list()) {
+                fs <- c("company_overview.csv", "stock_ohlc.sav", "balance_sheet.sav",
+                        "income_statement.sav", "cash_flow.sav")
+                write.csv(rownames_to_column(as.data.frame(company_overview(symbol)), " "), fs[1])
+                write_sav(stock_ohlc(symbol, start_date = input$dates[1], end_date = input$dates[2]), fs[2])
+                write_sav(clean_names(financial_report(symbol, "balancesheet", input$fin_report_range)), fs[3])
+                write_sav(clean_names(financial_report(symbol, "incomestatement", input$fin_report_range)), fs[4])
+                write_sav(clean_names(financial_report(symbol, "cashflow", input$fin_report_range)), fs[5])
+                zip(zipfile = paste0(symbol, ".zip"), files = fs, flags = "-q")
+              }
+              zip(zipfile = fname, files = paste0(symbol_list(), ".zip"), flags = "-q")
             }
           },
           error = function(e) {
-              print(e)
-              report_failure(
-                "Oups...",
-                "Something went wrong"
-              )
+            print(e)
+            report_failure(
+              "Oups...",
+              "Something went wrong"
+            )
           }
         )
         remove_modal_spinner()
