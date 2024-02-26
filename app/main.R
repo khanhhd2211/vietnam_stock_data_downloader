@@ -113,7 +113,7 @@ ui <- function(id) { # nolint
         ),
         actionButton(
           ns("on_search"),
-          span("Search", id = "UpdateAnimate", class = ""),
+          span("Preview", id = "UpdateAnimate", class = ""),
           width = "100%",
           icon = icon("search"),
           class = "btn-primary",
@@ -199,7 +199,6 @@ server <- function(id) {
           )
         })
       }
-      # output$search_res_ui <- renderUI(div(""))
       search$server("search", input$symbol, symbol_list, clear=TRUE)
     })
 
@@ -270,15 +269,30 @@ server <- function(id) {
                         "income_statement.csv", "cash_flow.csv")
                 fs <- paste(symbol, fs, sep = "_")
                 write.csv(rownames_to_column(as.data.frame(company_overview(symbol)), " "), fs[1])
-                write.csv(stock_ohlc(symbol, start_date = input$dates[1], end_date = input$dates[2]), fs[2], row.names = FALSE)
-                write.csv(financial_report(symbol, "balancesheet", input$fin_report_range), fs[3], row.names = FALSE)
-                write.csv(financial_report(symbol, "incomestatement", input$fin_report_range), fs[4], row.names = FALSE)
-                write.csv(financial_report(symbol, "cashflow", input$fin_report_range), fs[5], row.names = FALSE)
+                write.csv(
+                  stock_ohlc(symbol, start_date = input$dates[1], end_date = input$dates[2]), 
+                  fs[2],
+                  row.names = FALSE
+                )
+                write.csv(
+                  financial_report(symbol, "balancesheet", input$fin_report_range),
+                  fs[3],
+                  row.names = FALSE
+                )
+                write.csv(
+                  financial_report(symbol, "incomestatement", input$fin_report_range),
+                  fs[4],
+                  row.names = FALSE
+                )
+                write.csv(
+                  financial_report(symbol, "cashflow", input$fin_report_range),
+                  fs[5],
+                  row.names = FALSE
+                )
                 zip(zipfile = paste0(symbol, ".zip"), files = fs, flags = "-q")
               }
               zip(zipfile = fname, files = paste0(symbol_list(), ".zip"), flags = "-q")
-            }
-             else if (input$file_type == "stata") {
+            } else if (input$file_type == "stata") {
               # STATA
               setwd(tempdir())
               do.call(file.remove, list(list.files(getwd(), full.names = TRUE)))
@@ -286,16 +300,27 @@ server <- function(id) {
                 fs <- c("company_overview.csv", "stock_ohlc.dta", "balance_sheet.dta",
                         "income_statement.dta", "cash_flow.dta")
                 write.csv(rownames_to_column(as.data.frame(company_overview(symbol)), " "), fs[1])
-                write_dta(stock_ohlc(symbol, start_date = input$dates[1], end_date = input$dates[2]), fs[2])
-                write_dta(clean_names(financial_report(symbol, "balancesheet", input$fin_report_range)), fs[3])
+                write_dta(
+                  stock_ohlc(symbol, start_date = input$dates[1], end_date = input$dates[2]),
+                  fs[2]
+                )
+                write_dta(
+                  clean_names(financial_report(symbol, "balancesheet", input$fin_report_range)),
+                  fs[3]
+                )
                 write_dta(
                   rename(
-                    clean_names(financial_report(symbol, "incomestatement", input$fin_report_range)),
+                    clean_names(
+                      financial_report(symbol, "incomestatement", input$fin_report_range)
+                    ),
                     "qu_share_holder_income_growth" = "quarter_share_holder_income_growth"
-                  ), 
+                  ),
                   fs[4]
                 )
-                write_dta(clean_names(financial_report(symbol, "cashflow", input$fin_report_range)), fs[5])
+                write_dta(
+                  clean_names(financial_report(symbol, "cashflow", input$fin_report_range)),
+                  fs[5]
+                )
                 zip(zipfile = paste0(symbol, ".zip"), files = fs, flags = "-q")
               }
               zip(zipfile = fname, files = paste0(symbol_list(), ".zip"), flags = "-q")
@@ -303,15 +328,26 @@ server <- function(id) {
               # SPSS
               setwd(tempdir())
               do.call(file.remove, list(list.files(getwd(), full.names = TRUE)))
-              
               for (symbol in symbol_list()) {
                 fs <- c("company_overview.csv", "stock_ohlc.sav", "balance_sheet.sav",
                         "income_statement.sav", "cash_flow.sav")
                 write.csv(rownames_to_column(as.data.frame(company_overview(symbol)), " "), fs[1])
-                write_sav(stock_ohlc(symbol, start_date = input$dates[1], end_date = input$dates[2]), fs[2])
-                write_sav(clean_names(financial_report(symbol, "balancesheet", input$fin_report_range)), fs[3])
-                write_sav(clean_names(financial_report(symbol, "incomestatement", input$fin_report_range)), fs[4])
-                write_sav(clean_names(financial_report(symbol, "cashflow", input$fin_report_range)), fs[5])
+                write_sav(
+                  stock_ohlc(symbol, start_date = input$dates[1], end_date = input$dates[2]),
+                  fs[2]
+                )
+                write_sav(
+                  clean_names(financial_report(symbol, "balancesheet", input$fin_report_range)),
+                  fs[3]
+                )
+                write_sav(
+                  clean_names(financial_report(symbol, "incomestatement", input$fin_report_range)),
+                  fs[4]
+                )
+                write_sav(
+                  clean_names(financial_report(symbol, "cashflow", input$fin_report_range)),
+                  fs[5]
+                )
                 zip(zipfile = paste0(symbol, ".zip"), files = fs, flags = "-q")
               }
               zip(zipfile = fname, files = paste0(symbol_list(), ".zip"), flags = "-q")
