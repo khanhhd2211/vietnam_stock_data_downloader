@@ -4,7 +4,7 @@ Dự án mã nguồn mở được thiết kế để tải dữ liệu chứng 
 
 **Để sử dụng, anh chị vui lòng truy cập vào link sau:**
 
-[https://vietnam-stock-data-downloader.tech/](https://vietnam-stock-data-downloader.tech/)
+[http://vnstock.scienceforeconomics.com/](http://vnstock.scienceforeconomics.com/)
 
 ![](app/static/preview.png)
 
