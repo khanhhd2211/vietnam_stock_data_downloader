@@ -53,7 +53,7 @@ ui <- function(id) {
 server <- function(id, company_overview, stock_ohlc) {
   moduleServer(id, function(input, output, session) {
     output$company_overview_text <- renderUI({
-      tags$h4("Company Overview")
+      tags$h4("Thông tin chung")
     })
 
     output$company_overview <- renderTable(
@@ -63,7 +63,7 @@ server <- function(id, company_overview, stock_ohlc) {
     )
 
     output$stock_ohlc_text <- renderUI({
-      tags$h4("Stock Trading Historical Data")
+      tags$h4("Giá cổ phiếu")
     })
     output$stock_ohlc <- renderDataTable(
       arrange(stock_ohlc, desc(time)),

@@ -87,33 +87,48 @@ ui <- function(id) { # nolint
     fluidRow(column(width = 12, tags$img(width = "300px", alt = "logo scieco", src = "static/logo.svg"))), # nolint
     div(tags$hr()),
     tags$h3("Tải dữ liệu chứng khoán Việt Nam 💵"),
-    fluidRow(column(width = 6, style="margin-top: 10px; margin-bottom: 10px", div("Dự án mã nguồn mở được thiết kế để tải dữ liệu chứng khoán Việt Nam một cách dễ dàng và miễn phí. Dự án sử dụng các nguồn cấp dữ liệu đáng tin cậy và không giới hạn của các công ty niêm yết trên sàn chứng khoán Việt Nam."))), # nolint
+    fluidRow(column(width = 6, style="margin-top: 10px; margin-bottom: 10px", div("Dự án được thiết kế để tải dữ liệu chứng khoán Việt Nam một cách dễ dàng và hoàn toàn miễn phí."))), # nolint
+    fluidRow(
+      column(
+        width = 6,
+        style = "margin-top: 10px; margin-bottom: 10px",
+        div(
+          "Nguồn dữ liệu: Dữ liệu được lấy từ",
+          tags$a(
+            href = "https://docs.vnstock.site/",
+            "Vnstock - gói phần mềm Python phân tích thị trường chứng khoán Việt Nam."
+          ),
+          tags$br(),
+          "(thinh-vu @ Github, Copyright (c) 2022)." # nolint
+        )
+      )
+    ), # nolint
     fluidRow(column(width = 6, style="margin-bottom: 30px", div("Để sử dụng vui lòng nhập mã cổ phiếu, và khoảng thời gian và ấn tìm kiếm, sau khi có được thông tin, vui lòng ấn tải về để tải dữ liệu mong muốn."))), # nolint
     sidebarLayout(
       # Sidebar with a slider input
       sidebarPanel(
         div(
-          textInput(ns("symbol"), "Search Symbol", placeholder = "Search company"),
+          textInput(ns("symbol"), "Nhập mã cổ phiếu", placeholder = "Search company"),
           search$ui(ns("search")),
           uiOutput(
             ns("symbol_list"), 
           )
         ),
         dateRangeInput(ns("dates"),
-                     "Date Range",
+                     "Chọn khoảng thời gian",
                      start = as.character(Sys.Date() - 365),
                      end = as.character(Sys.Date())),
         selectInput(
           ns("fin_report_range"),
-          "Financial Report Range:",
+          "Chọn loại báo cáo tài chính:",
           c(
-            "Quarterly" = "quarterly",
-            "Yearly" = "yearly"
+            "Theo quý" = "quarterly",
+            "Theo năm" = "yearly"
           )
         ),
         actionButton(
           ns("on_search"),
-          span("Preview", id = "UpdateAnimate", class = ""),
+          span("Xem trước", id = "UpdateAnimate", class = ""),
           width = "100%",
           icon = icon("search"),
           class = "btn-primary",
@@ -121,7 +136,7 @@ ui <- function(id) { # nolint
         ),
         selectInput(
           ns("file_type"),
-          "Download File Type:",
+          "Chọn loại tệp tải về:",
           c("CSV" = "csv",
             "Excel" = "excel",
             "Stata" = "stata",
@@ -129,7 +144,7 @@ ui <- function(id) { # nolint
         ),
         downloadButton(
           ns("downloadData"),
-          "Download All",
+          "Tải xuống tất cả",
           style = "width:100%",
           icon = icon("download")
         ),
@@ -138,10 +153,10 @@ ui <- function(id) { # nolint
       # Show a plot of the generated distribution
       mainPanel(
           tabsetPanel(
-          tabPanel("Stock price", stock_price$ui(ns("stock_price"))),
-          tabPanel("Balance Sheet", financial_report_page$ui(ns("balance_sheet"))),
-          tabPanel("Income Statement", financial_report_page$ui(ns("income_statement"))),
-          tabPanel("Cash Flow Statement", financial_report_page$ui(ns("cash_flow_statement"))),
+          tabPanel("Tổng quan", stock_price$ui(ns("stock_price"))),
+          tabPanel("Bảng cân đối kế toán", financial_report_page$ui(ns("balance_sheet"))),
+          tabPanel("Kế quả hoạt động kinh doanh", financial_report_page$ui(ns("income_statement"))),
+          tabPanel("Lưu chuyển dòng tiền", financial_report_page$ui(ns("cash_flow_statement"))),
         )
       )
     )
@@ -174,7 +189,7 @@ server <- function(id) {
       output$symbol_list <- if (length(symbol_list()) > 0) {
         renderUI({
           div(
-            div("Symbol List", style = "margin-bottom: 5px; font-weight: 700;"),
+            div("Danh sách mã cổ phiếu", style = "margin-bottom: 5px; font-weight: 700;"),
             div(
               style = "
                 background-color: white;
@@ -228,8 +243,8 @@ server <- function(id) {
           },
           error = function(e) {
             report_failure(
-              "Oups...",
-              "Something went wrong"
+              "Có lỗi xảy ra...",
+              "Bạn chưa chọn công ty hoặc công ty được chọn không có dữ liệu..."
             )
           }
         )
@@ -356,8 +371,8 @@ server <- function(id) {
           error = function(e) {
             print(e)
             report_failure(
-              "Oups...",
-              "Something went wrong"
+              "Có lỗi xảy ra...",
+              "Bạn chưa chọn công ty hoặc công ty được chọn không có dữ liệu..."
             )
           }
         )
